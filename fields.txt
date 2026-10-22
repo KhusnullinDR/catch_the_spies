@@ -1,0 +1,98 @@
+dim_flight_schedule:
+
+Поле             | Тип    | Описание
+-----------------+--------+-----------------------------------------------------
+schedule_id      | INT64  | Уникальный ID записи расписания (PK)
+flight_number    | STRING | Номер рейса
+airline_code     | STRING | Код авиакомпании IATA
+origin_code      | STRING | IATA вылета
+origin_city      | STRING | Город вылета
+origin_country   | STRING | Страна вылета
+dest_code        | STRING | IATA прилёта
+dest_city        | STRING | Город прилёта
+dest_country     | STRING | Страна прилёта
+valid_from       | DATE32 | Начало действия расписания
+valid_to         | DATE32 | Конец действия расписания
+days_mask        | STRING | Дни выполнения (1=вс…7=сб), напр. 1234567
+dep_time         | TIME64 | Время вылета (местное)
+arr_time         | TIME64 | Время прилёта (местное)
+arr_day_offset   | INT16  | Сдвиг дня прилёта (0/1/2)
+travel_time_min  | INT32  | Время в пути (мин)
+aircraft_code    | STRING | Код самолёта
+aircraft_name    | STRING | Название самолёта
+source_file      | STRING | Имя файла-источника
+
+dim_person:
+
+Поле                            | Тип    | Описание
+--------------------------------+--------+-------------------------------------------
+person_id                       | INT64  | Уникальный ID пассажира (PK)
+last_name                       | STRING | Фамилия
+first_name                      | STRING | Имя
+middle_name                     | STRING | Отчество
+birth_date                      | DATE32 | Дата рождения
+gender                          | STRING | Пол (M/F/U)
+passport                        | STRING | Номер документа
+passport_country                | STRING | Страна документа (ISO-2/3)
+ff_airline                      | STRING | Код бонусной программы
+ff_number                       | STRING | Номер бонусной карты
+ff_program_name                 | STRING | Название программы лояльности
+forum_uid                       | STRING | ID пользователя на форуме
+forum_registered_flights_count  | INT32  | Кол-во рейсов, зарегистрированных на форуме
+contact_phone                   | STRING | Телефон
+contact_email                   | STRING | Email
+source_file                     | STRING | Имя файла-источника
+
+fact_flights:
+
+# Идентификация записи
+segment_id              | INT64   | Уникальный ID записи (PK)
+person_id               | INT64   | Связь с dim_person (FK)
+source_file             | STRING  | Имя файла-источника
+source_row_id           | STRING  | Номер строки/элемента в исходнике
+
+# Рейс и дата
+flight_number_raw       | STRING  | Номер рейса как в исходнике
+flight_number_clean     | STRING  | Нормализованный номер рейса
+airline_code            | STRING  | Код авиакомпании IATA
+flight_date             | DATE32  | Дата полёта (YYYY-MM-DD)
+dep_time_actual         | TIME64  | Фактическое время вылета
+arr_time_actual         | TIME64  | Фактическое время прилёта
+
+# Бронирование и билет
+pnr                     | STRING  | Код брони (PNR)
+e_ticket                | STRING  | Номер билета
+seat                    | STRING  | Место
+baggage                 | STRING  | Багаж
+agent                   | STRING  | Агент / канал продажи
+status                  | STRING  | Статус (Delayed, Transit и т.д.)
+
+# Класс и тариф
+cabin_class             | STRING  | Класс обслуживания (Y/J/A/P/F)
+fare_code_raw           | STRING  | Код тарифа как в исходнике
+fare_basis_code         | STRING  | Расшифрованный Fare Basis Code
+fare_conditions         | STRING  | Условия тарифа (возврат, сезонность и т.д.)
+
+# География
+origin_code             | STRING  | IATA вылета (может быть мусор — rea)
+origin_city             | STRING  | Город вылета
+origin_country          | STRING  | Страна вылета
+dest_code               | STRING  | IATA прилёта
+dest_city               | STRING  | Город прилёта
+dest_country            | STRING  | Страна прилёта
+
+# Код-шеринг
+codeshare_raw           | STRING  | Флаг как в исходнике (NO/YES, Own/Operated, true/false)
+codeshare_bool          | BOOLEAN | Нормализованный флаг
+operating_carrier       | STRING  | Фактический перевозчик (если код-шеринг)
+
+# Бонусные программы
+ff_airline              | STRING  | Авиакомпания бонусной карты
+ff_number               | STRING  | Номер бонусной карты
+ff_program_name         | STRING  | Название программы лояльности
+miles_earned            | INT32   | Начисленные мили
+activity_type           | STRING  | Тип активности (Flight и т.д.)
+
+# Флаги качества данных
+data_quality_flag       | STRING  | Метка аномалии (bad_iata, missing_date и т.д.)
+possible_duplicate      | BOOLEAN | Признак возможного дубля
